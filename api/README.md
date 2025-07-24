@@ -12,6 +12,12 @@ pip install -r requirements.txt
 
 ### 运行应用
 
+#### 方法1：直接运行Python文件
+```bash
+python app.py
+```
+
+#### 方法2：使用uvicorn命令
 ```bash
 uvicorn app:app --reload
 ```
