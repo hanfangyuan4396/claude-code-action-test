@@ -26,7 +26,7 @@ api/wecom/
 1. [x] 安装wechatpy库并研究其企业微信验证API
 2. [x] 设计验证URL的接口结构
 3. [x] 使用wechatpy实现URL验证的核心逻辑
-4. [ ] 创建测试用例验证功能正确性
+4. [x] 创建测试用例验证功能正确性（使用 pytest + pytest-mock + pytest-cov）
 5. [ ] 文档编写和部署说明
 
 ## 接口设计
@@ -57,3 +57,4 @@ api/wecom/
 - [2025-08-10] 技术方案改为使用wechatpy库，移除weworkapi_python依赖
 - [2025-08-10] 已完成wechatpy库安装和验证逻辑实现
 - [2025-08-10] 已实现WeComURLVerifier类，包含verify_url方法
+- [2025-08-10] 确定测试框架为 pytest，新增单测 `api/tests/test_wecom_verify.py`，并在 `api/requirements.txt` 补充测试依赖

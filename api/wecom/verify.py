@@ -45,7 +45,7 @@ class WeComURLVerifier:
         """
         try:
             plain = self.crypto.check_signature(
-                msg_signature=msg_signature,
+                signature=msg_signature,
                 timestamp=timestamp,
                 nonce=nonce,
                 echo_str=echostr,
