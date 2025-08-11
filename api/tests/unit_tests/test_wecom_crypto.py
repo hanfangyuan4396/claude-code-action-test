@@ -55,3 +55,26 @@ def test_decrypt_from_json_missing_encrypt():
         )
 
 
+def test_encrypt_to_json_success(mocker):
+    mock_crypto_cls = mocker.patch("wecom.crypto.WeChatCrypto")
+    # wechatpy.encrypt_message 返回的 XML，包含四个关键字段
+    mock_crypto_cls.return_value.encrypt_message.return_value = (
+        "<xml>"
+        "<Encrypt><![CDATA[cipher_text]]></Encrypt>"
+        "<MsgSignature><![CDATA[msg_sig]]></MsgSignature>"
+        "<TimeStamp>1754796900</TimeStamp>"
+        "<Nonce><![CDATA[noncev]]></Nonce>"
+        "</xml>"
+    )
+
+    crypto = create_crypto()
+    result = crypto.encrypt_to_json(
+        plain_text="<xml>plain</xml>",
+        nonce="noncev",
+    )
+
+    assert result["encrypt"] == "cipher_text"
+    assert result["msgsignature"] == "msg_sig"
+    # timestamp 字段应为固定值（来自打桩返回）
+    assert result["timestamp"] == 1754796900
+    assert result["nonce"] == "noncev"
