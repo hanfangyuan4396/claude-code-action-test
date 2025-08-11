@@ -30,7 +30,7 @@ def test_decrypt_from_json_success_integration():
         msg_signature=enc["msgsignature"],
         timestamp=str(enc["timestamp"]),
         nonce=enc["nonce"],
-        body={"encrypt": enc["encrypt"]},
+        encrypt=enc["encrypt"],
     )
 
     # 解析为对象对比结构等价，避免字符串序列化差异影响

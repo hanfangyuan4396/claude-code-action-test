@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 from typing import Any, Dict
-import json
 import logging
 import xml.etree.ElementTree as ET
 
@@ -35,53 +34,25 @@ class WeComMessageCrypto:
         except Exception as exc:  # pragma: no cover - 初始化失败直接抛出
             logger.error("Failed to init WeChatCrypto: %s", exc)
             raise
-    
-    # TODO: 删除此函数，解密函数直接传入待解密的密文
-    def _ensure_encrypt_from_body(self, body: str | bytes | Dict[str, Any]) -> str:
-        """从请求体中提取 encrypt 字段。
-
-        支持传入：
-        - 字典（已解析的 JSON）
-        - 字符串/字节串（未解析的 JSON 文本）
-        """
-        if isinstance(body, (bytes, bytearray)):
-            try:
-                body = body.decode("utf-8")
-            except Exception as exc:  # pragma: no cover - 解码异常很少出现
-                raise ValueError("请求体字节串解码失败: 需为 UTF-8 编码") from exc
-
-        if isinstance(body, str):
-            try:
-                body = json.loads(body)
-            except json.JSONDecodeError as exc:
-                raise ValueError("请求体需为合法的 JSON 字符串或字典") from exc
-
-        if not isinstance(body, dict):
-            raise ValueError("请求体类型错误: 需为字典或 JSON 字符串")
-
-        encrypt = body.get("encrypt")
-        if not isinstance(encrypt, str) or not encrypt:
-            raise ValueError("请求体缺少 encrypt 字段或其值非法")
-        return encrypt
-
-    def decrypt_from_json(self, msg_signature: str, timestamp: str, nonce: str, body: str | bytes | Dict[str, Any]) -> str:
-        """解密“新回调模式”JSON 请求体，返回明文 XML 字符串。
+    def decrypt_from_json(self, msg_signature: str, timestamp: str, nonce: str, encrypt: str) -> str:
+        """解密“新回调模式”回调密文，返回明文 XML 字符串。
 
         Args:
             msg_signature: 回调签名
             timestamp: 时间戳（字符串）
             nonce: 随机数
-            body: JSON 请求体（可为 dict、JSON 字符串或字节串），需包含 encrypt 字段
+            encrypt: 待解密的密文字符串（来自请求体的 encrypt 字段）
 
         Returns:
             明文 XML 字符串
 
         Raises:
-            ValueError: 入参不合法或 JSON 结构缺失
+            ValueError: 入参不合法（encrypt 非法）
             InvalidSignatureException: 签名校验失败
             Exception: 其他底层解密异常
         """
-        encrypt = self._ensure_encrypt_from_body(body)
+        if not isinstance(encrypt, str) or not encrypt:
+            raise ValueError("待解密的 encrypt 需为非空字符串")
 
         # wechatpy 的 decrypt_message 期望传入 XML 格式的密文包体：
         #   <xml><Encrypt><![CDATA[...]]></Encrypt></xml>

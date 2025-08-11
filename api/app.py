@@ -137,9 +137,6 @@ async def wecom_callback_post(
 ):
     """企业微信回调 POST（新回调 JSON 模式：解密并被动回复“收到”）。"""
 
-    headers = dict(request.headers)
-    query_params = {"msg_signature": msg_signature, "timestamp": timestamp, "nonce": nonce}
-
     # 读取 JSON 请求体并直接取 encrypt（签名中声明为 dict，无需再判断类型）
     encrypt = body.get("encrypt")
     if not isinstance(encrypt, str) or not encrypt:
@@ -158,7 +155,7 @@ async def wecom_callback_post(
             msg_signature=msg_signature,
             timestamp=str(timestamp),
             nonce=str(nonce),
-            body={"encrypt": encrypt},
+            encrypt=encrypt,
         )
         # 解密出来的消息，实际是 JSON 格式，例如：
         # {
