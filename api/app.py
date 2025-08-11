@@ -171,10 +171,18 @@ async def wecom_callback_post(
         # }
         logger.info("wecom_callback_post decrypted plain xml: %s", plain_xml)
 
-        # 构造固定文本“收到”的被动回复（明文需为字符串）
+        # 直接使用随机 UUID 作为流式消息 id
+        import uuid
+        stream_id = uuid.uuid4().hex
+
+        # 构造“回复用户消息”的流式消息（明文需为字符串）
         reply_plain_json = {
-            "msgtype": "text",
-            "text": {"content": "收到"},
+            "msgtype": "stream",
+            "stream": {
+                "id": stream_id,
+                "finish": True,
+                "content": "收到",
+            },
         }
         reply_plain_text = json.dumps(reply_plain_json, ensure_ascii=False)
 
