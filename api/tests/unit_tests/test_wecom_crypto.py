@@ -18,7 +18,7 @@ def test_decrypt_from_json_success(mocker):
         msg_signature="sig",
         timestamp="123",
         nonce="n",
-        body={"encrypt": "ENC"},
+        encrypt="ENC",
     )
 
     assert plain == "<xml>plain</xml>"
@@ -40,7 +40,7 @@ def test_decrypt_from_json_invalid_signature(mocker):
             msg_signature="sig",
             timestamp="123",
             nonce="n",
-            body={"encrypt": "ENC"},
+            encrypt="ENC",
         )
 
 
@@ -51,7 +51,7 @@ def test_decrypt_from_json_missing_encrypt():
             msg_signature="sig",
             timestamp="123",
             nonce="n",
-            body={},
+            encrypt="",
         )
 
 
