@@ -74,7 +74,7 @@ async def echo_post(request: Request):
 
 
 @app.get("/wecom/callback")
-async def wecom_callback(
+async def wecom_callback_get(
     msg_signature: str | None = Query(default=None),
     timestamp: str | None = Query(default=None),
     nonce: str | None = Query(default=None),
@@ -122,5 +122,39 @@ async def wecom_callback(
         logger.exception("wecom_callback error: %s", e)
         return PlainTextResponse("internal error", status_code=500)
 
+@app.post("/wecom/callback")
+async def wecom_callback_post(request: Request):
+    """企业微信回调 POST：仅打印收到的数据（参考 /echo POST）。
+
+    当前实现：
+    - 记录请求头、查询参数、原始请求体文本
+    - 返回与 /echo POST 一致的 JSON 结构
+    """
+
+    headers = dict(request.headers)
+    query_params = dict(request.query_params)
+
+    try:
+        body_bytes = await request.body()
+        body_text = body_bytes.decode("utf-8", errors="ignore") if body_bytes else ""
+    except Exception:
+        body_text = ""
+
+    logger.info(
+        "wecom_callback_post method=%s url=%s headers=%s query=%s body=%s",
+        request.method,
+        str(request.url),
+        headers,
+        query_params,
+        body_text,
+    )
+
+    return {
+        "method": "POST",
+        "headers": headers,
+        "query": query_params,
+        "body": body_text,
+    }
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=False)
