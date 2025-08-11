@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, Query, Body
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
+import xml.etree.ElementTree as ET
 from wecom.verify import WeComURLVerifier
 from wecom import WeComMessageCrypto
 from wechatpy.exceptions import InvalidSignatureException
@@ -9,6 +10,7 @@ import logging
 from typing import Annotated
 from pathlib import Path
 from dotenv import load_dotenv
+import json
 
 app = FastAPI(
     title="FastAPI Demo",
@@ -133,7 +135,7 @@ async def wecom_callback_post(
     timestamp: str = Query(..., description="时间戳 timestamp（字符串）"),
     nonce: str = Query(..., description="随机串 nonce"),
 ):
-    """企业微信回调 POST（新回调 JSON 模式解密）。"""
+    """企业微信回调 POST（新回调 JSON 模式：解密并被动回复“收到”）。"""
 
     headers = dict(request.headers)
     query_params = {"msg_signature": msg_signature, "timestamp": timestamp, "nonce": nonce}
@@ -158,14 +160,30 @@ async def wecom_callback_post(
             nonce=str(nonce),
             body={"encrypt": encrypt},
         )
+        # 解密出来的消息，实际是 JSON 格式，例如：
+        # {
+        #     "msgid": "xxx",
+        #     "aibotid": "xxx", 
+        #     "chattype": "single",
+        #     "from": {"userid": "ZhangSan"},
+        #     "msgtype": "text",
+        #     "text": {"content": "hi"}
+        # }
         logger.info("wecom_callback_post decrypted plain xml: %s", plain_xml)
-        return {
-            "method": "POST",
-            "headers": headers,
-            "query": query_params,
-            "body": body,
-            "plain_xml": plain_xml,
+
+        # 构造固定文本“收到”的被动回复（明文需为字符串）
+        reply_plain_json = {
+            "msgtype": "text",
+            "text": {"content": "收到"},
         }
+        reply_plain_text = json.dumps(reply_plain_json, ensure_ascii=False)
+
+        encrypted_resp = crypto.encrypt_to_json(
+            plain_text=reply_plain_text,
+            nonce=str(nonce),
+        )
+
+        return JSONResponse(content=encrypted_resp)
     except InvalidSignatureException:
         return PlainTextResponse("invalid signature", status_code=400)
     except Exception as e:

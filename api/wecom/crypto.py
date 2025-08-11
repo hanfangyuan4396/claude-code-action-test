@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Any, Dict
 import json
 import logging
+import xml.etree.ElementTree as ET
 
 from wechatpy.enterprise.crypto import WeChatCrypto
 from wechatpy.exceptions import InvalidSignatureException
@@ -34,7 +35,8 @@ class WeComMessageCrypto:
         except Exception as exc:  # pragma: no cover - 初始化失败直接抛出
             logger.error("Failed to init WeChatCrypto: %s", exc)
             raise
-
+    
+    # TODO: 删除此函数，解密函数直接传入待解密的密文
     def _ensure_encrypt_from_body(self, body: str | bytes | Dict[str, Any]) -> str:
         """从请求体中提取 encrypt 字段。
 
@@ -96,6 +98,53 @@ class WeComMessageCrypto:
         except InvalidSignatureException:
             # 透传给上层以便返回 400
             raise
+
+    def encrypt_to_json(self, plain_text: str, nonce: str) -> Dict[str, Any]:
+        """将明文字符串加密并按新回调 JSON 协议返回。
+
+        注意：本方法仅接受字符串。调用方需在调用前自行将 JSON/dict/bytes 等格式转换为字符串。
+
+        输出字段：`encrypt`, `msgsignature`, `timestamp`, `nonce`。
+
+        Args:
+            plain_text: 明文字符串
+            nonce: 随机串（建议使用回调 URL 中的 nonce 原样回传）
+
+        Returns:
+            JSON 字段字典
+
+        Raises:
+            ValueError: 当 wechatpy 返回的加密 XML 结构不完整或入参类型错误时
+            Exception: 其他底层加密异常
+        """
+        if not isinstance(plain_text, str):
+            raise ValueError("待加密明文只支持字符串，调用方需自行转换为字符串")
+
+        try:
+            # timestamp 留空，由 wechatpy 内部生成
+            encrypted_xml: str = self.crypto.encrypt_message(plain_text, nonce)
         except Exception as exc:
-            logger.error("Decrypt message failed: %s", exc)
+            logger.error("Encrypt message failed: %s", exc)
             raise
+
+        try:
+            root = ET.fromstring(encrypted_xml)
+        except Exception as exc:
+            logger.error("Parse encrypted xml failed: %s", exc)
+            raise
+
+        encrypt_text = root.findtext("Encrypt")
+        msg_sig = root.findtext("MsgSignature")
+        ts = root.findtext("TimeStamp")
+        n = root.findtext("Nonce")
+
+        if not all([encrypt_text, msg_sig, ts, n]):
+            raise ValueError("加密结果缺少必要字段: Encrypt/MsgSignature/TimeStamp/Nonce")
+
+        # 与企业微信文档一致，字段名采用 msgsignature/timestamp/nonce
+        return {
+            "encrypt": encrypt_text,
+            "msgsignature": msg_sig,
+            "timestamp": int(ts) if str(ts).isdigit() else ts,
+            "nonce": n,
+        }
