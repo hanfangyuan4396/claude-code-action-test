@@ -26,7 +26,7 @@ logger = get_logger()
 register_exception_handlers(app)
 
 # 挂载路由（echo 等）
-from controller.echo import router as echo_router  # noqa: E402
+from controller.echo_controller import router as echo_router  # noqa: E402
 app.include_router(echo_router)
 
 # 读取环境变量（通过统一 settings）
@@ -36,32 +36,6 @@ WECOM_CORP_ID = settings.WECOM_CORP_ID
 logger.info(f"token: {WECOM_TOKEN} encoding_aes_key: {WECOM_ENCODING_AES_KEY} corp_id: {WECOM_CORP_ID}")
 
 
-@app.post("/echo")
-async def echo_post(request: Request):
-    headers = dict(request.headers)
-    query_params = dict(request.query_params)
-
-    try:
-        body_bytes = await request.body()
-        body_text = body_bytes.decode("utf-8", errors="ignore") if body_bytes else ""
-    except Exception:
-        body_text = ""
-
-    logger.info(
-        "method=%s url=%s headers=%s query=%s body=%s",
-        request.method,
-        str(request.url),
-        headers,
-        query_params,
-        body_text,
-    )
-
-    return {
-        "method": "POST",
-        "headers": headers,
-        "query": query_params,
-        "body": body_text,
-    }
 
 
 @app.get("/wecom/callback")
