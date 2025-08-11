@@ -1,16 +1,14 @@
 from fastapi import FastAPI, Request, Query, Body
 from fastapi.responses import PlainTextResponse, JSONResponse
-import xml.etree.ElementTree as ET
 from wecom.verify import WeComURLVerifier
 from wecom import WeComMessageCrypto
 from wechatpy.exceptions import InvalidSignatureException
-import os
 import uvicorn
-import logging
 from typing import Annotated
-from pathlib import Path
-from dotenv import load_dotenv
 import json
+from utils import register_exception_handlers
+from utils.logging import init_logging, get_logger
+from utils.config import settings
 
 app = FastAPI(
     title="FastAPI Demo",
@@ -18,37 +16,25 @@ app = FastAPI(
     version="1.0.0"
 )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
-logger = logging.getLogger("app.request")
+init_logging(settings.LOG_LEVEL)
+logger = get_logger()
 
-# 加载本地 .env 文件（位于与本文件同目录的 `.env`）
-load_dotenv(dotenv_path=Path(__file__).with_name(".env"))
+# 加载 .env 已由 utils.config.Settings 完成
 
-# 读取环境变量
-WECOM_TOKEN = os.getenv("WECOM_TOKEN")
-WECOM_ENCODING_AES_KEY = os.getenv("WECOM_ENCODING_AES_KEY")
-WECOM_CORP_ID = os.getenv("WECOM_CORP_ID", "")
+
+# 装配全局异常处理器
+register_exception_handlers(app)
+
+# 挂载路由（echo 等）
+from controller.echo import router as echo_router  # noqa: E402
+app.include_router(echo_router)
+
+# 读取环境变量（通过统一 settings）
+WECOM_TOKEN = settings.WECOM_TOKEN
+WECOM_ENCODING_AES_KEY = settings.WECOM_ENCODING_AES_KEY
+WECOM_CORP_ID = settings.WECOM_CORP_ID
 logger.info(f"token: {WECOM_TOKEN} encoding_aes_key: {WECOM_ENCODING_AES_KEY} corp_id: {WECOM_CORP_ID}")
 
-@app.get("/echo")
-async def echo_get(request: Request):
-    headers = dict(request.headers)
-    query_params = dict(request.query_params)
-    logger.info(
-        "method=%s url=%s headers=%s query=%s",
-        request.method,
-        str(request.url),
-        headers,
-        query_params,
-    )
-    return {
-        "method": "GET",
-        "headers": headers,
-        "query": query_params,
-    }
 
 @app.post("/echo")
 async def echo_post(request: Request):
