@@ -6,6 +6,7 @@ from wechatpy.exceptions import InvalidSignatureException
 import os
 import uvicorn
 import logging
+from typing import Annotated
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -127,7 +128,7 @@ async def wecom_callback_get(
 @app.post("/wecom/callback")
 async def wecom_callback_post(
     request: Request,
-    body: dict = Body(...),
+    body: Annotated[dict, Body(...)],
     msg_signature: str = Query(..., description="企业微信签名 msg_signature"),
     timestamp: str = Query(..., description="时间戳 timestamp（字符串）"),
     nonce: str = Query(..., description="随机串 nonce"),
@@ -137,10 +138,7 @@ async def wecom_callback_post(
     headers = dict(request.headers)
     query_params = {"msg_signature": msg_signature, "timestamp": timestamp, "nonce": nonce}
 
-    # 读取 JSON 请求体并直接取 encrypt
-    if not isinstance(body, dict):
-        return PlainTextResponse("json body must be an object", status_code=400)
-
+    # 读取 JSON 请求体并直接取 encrypt（签名中声明为 dict，无需再判断类型）
     encrypt = body.get("encrypt")
     if not isinstance(encrypt, str) or not encrypt:
         return PlainTextResponse("missing encrypt in body", status_code=400)

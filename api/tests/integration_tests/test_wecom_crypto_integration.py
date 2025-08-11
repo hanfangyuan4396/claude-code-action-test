@@ -19,7 +19,6 @@ def test_decrypt_from_json_success_integration():
 
     # 待加密的明文（POST 解密后应返回该明文）
     plain_xml = "<xml><FromUserName><![CDATA[u]]></FromUserName><ToUserName><![CDATA[v]]></ToUserName><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[hi]]></Content></xml>"
-
     # 使用 wechatpy 生成一组有效的密文与签名（与 URL 验证不同，这里我们只取 Encrypt，然后自己签名）
     encrypted_xml = crypto_sdk.encrypt_message(plain_xml, nonce, timestamp)
 
