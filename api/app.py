@@ -20,8 +20,8 @@ logger = get_logger()
 register_exception_handlers(app)
 
 # 挂载路由（echo、wecom callback 等）
-from controller.echo_controller import router as echo_router  # noqa: E402
-from controller.wecom_callback_controller import router as wecom_router  # noqa: E402
+from controller.echo_controller import router as echo_router
+from controller.wecom_callback_controller import router as wecom_router
 app.include_router(echo_router)
 app.include_router(wecom_router)
 
