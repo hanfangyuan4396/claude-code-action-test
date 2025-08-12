@@ -39,3 +39,51 @@ uvicorn app:app --reload
 ## 开发
 
 使用 `--reload` 参数可以在代码更改时自动重启服务器。
+
+### Ruff 使用（代码规范与格式化）
+
+建议在 `api/` 目录执行以下命令。
+
+安装（一次性）：
+
+```bash
+pip install --upgrade ruff==0.12.8
+```
+
+检查（仅报告问题）：
+
+```bash
+ruff check .
+```
+
+自动修复并格式化：
+
+```bash
+ruff check . --fix && ruff format .
+```
+
+仅格式化：
+
+```bash
+ruff format .
+```
+
+### pre-commit（仅作用于 `api/`）
+
+若未安装 pre-commit，请先：
+
+```bash
+pip install pre-commit==4.3.0
+```
+
+安装 Git 钩子（Ruff 钩子仅作用于 `api/`；空白修复钩子作用于全仓库）：
+
+```bash
+pre-commit install
+```
+
+对全仓库运行一遍钩子：
+
+```bash
+pre-commit run --all-files
+```
