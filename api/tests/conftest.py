@@ -3,10 +3,10 @@ import sys
 
 
 def _ensure_api_dir_on_syspath() -> None:
-    """Ensure `api/` directory is on sys.path so `from wecom.verify` works.
+    """Ensure `api/` directory is on sys.path so `from core.wecom.verify` works.
 
     Tests live in `api/tests`. Adding the parent directory (`api`) to sys.path
-    makes the `wecom` package importable as a top-level package.
+    makes the `core.wecom` package importable from project root.
     """
 
     tests_dir = os.path.dirname(__file__)
