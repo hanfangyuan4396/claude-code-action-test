@@ -1,17 +1,18 @@
-from typing import Dict, Any
-
+from typing import Any
 
 from utils.logging import get_logger
+
 logger = get_logger()
+
 
 class EchoService:
     def build_echo_get_response(
         self,
         method: str,
         url: str,
-        headers: Dict[str, Any],
-        query_params: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        headers: dict[str, Any],
+        query_params: dict[str, Any],
+    ) -> dict[str, Any]:
         logger.info(
             "method=%s url=%s headers=%s query=%s",
             method,
@@ -29,10 +30,10 @@ class EchoService:
         self,
         method: str,
         url: str,
-        headers: Dict[str, Any],
-        query_params: Dict[str, Any],
+        headers: dict[str, Any],
+        query_params: dict[str, Any],
         body_text: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         logger.info(
             "method=%s url=%s headers=%s query=%s body=%s",
             method,

@@ -1,7 +1,8 @@
-from core.wecom.verify import WeComURLVerifier
-from wechatpy.enterprise.crypto import WeChatCrypto
 import xml.etree.ElementTree as ET
 
+from wechatpy.enterprise.crypto import WeChatCrypto
+
+from core.wecom.verify import WeComURLVerifier
 
 # 使用用户提供的配置
 TOKEN = "eGsTQSJBs44yLCSq"

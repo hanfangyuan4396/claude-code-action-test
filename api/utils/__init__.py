@@ -1,9 +1,7 @@
 # Re-export utilities for convenience
-from .error_handlers import register_exception_handlers, error_response
+from .error_handlers import error_response, register_exception_handlers
 
 __all__ = [
-    "register_exception_handlers",
     "error_response",
+    "register_exception_handlers",
 ]
-
-

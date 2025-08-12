@@ -1,7 +1,6 @@
 import logging
 import os
 
-
 _INITIALIZED = False
 
 
@@ -25,5 +24,3 @@ def init_logging(level: str | None = None) -> None:
 def get_logger() -> logging.Logger:
     """获取 root logger（统一使用全局格式，包含文件名与行号）。"""
     return logging.getLogger()
-
-

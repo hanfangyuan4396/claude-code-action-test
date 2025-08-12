@@ -39,7 +39,7 @@ api/wecom/
 ## 测试用例
 使用提供的GET请求示例作为测试数据：
 - **URL**: `http://bot.xxx.cn/wecom/callback?msg_signature=17e86d1889adbb8ecca26acdfe1273dff4fafcdc&timestamp=1754796900&nonce=1754668868&echostr=UQxuFtwxPAqfxGD6eTyln0bj8D9XNd2NE%2BBJucA93UT5TzpW7CZJMOx9lxS1VpC7weAJ0%2FaiN4YhWImt%2FmRzYA%3D%3D`
-- **Query参数**: 
+- **Query参数**:
   - `msg_signature`: `17e86d1889adbb8ecca26acdfe1273dff4fafcdc`
   - `timestamp`: `1754796900`
   - `nonce`: `1754668868`

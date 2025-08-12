@@ -1,5 +1,6 @@
-from core.wecom.verify import WeComURLVerifier
 from wechatpy.exceptions import InvalidSignatureException
+
+from core.wecom.verify import WeComURLVerifier
 
 
 def create_verifier() -> WeComURLVerifier:

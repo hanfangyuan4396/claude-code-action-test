@@ -1,6 +1,7 @@
 import pytest
-from core.wecom.crypto import WeComMessageCrypto
 from wechatpy.exceptions import InvalidSignatureException
+
+from core.wecom.crypto import WeComMessageCrypto
 
 
 def create_crypto() -> WeComMessageCrypto:
@@ -46,7 +47,7 @@ def test_decrypt_from_json_invalid_signature(mocker):
 
 def test_decrypt_from_json_missing_encrypt():
     crypto = create_crypto()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="encrypt"):
         crypto.decrypt_from_json(
             msg_signature="sig",
             timestamp="123",

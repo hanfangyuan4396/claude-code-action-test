@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 
 class ConfigValidationError(Exception):
     """配置校验异常"""
+
     pass
 
 
@@ -21,29 +23,27 @@ class Settings:
         self.WECOM_ENCODING_AES_KEY: str | None = os.getenv("WECOM_ENCODING_AES_KEY")
         self.WECOM_CORP_ID: str = os.getenv("WECOM_CORP_ID", "")
         self.LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
-        
+
         # 配置完整性校验
         self._validate_config()
-    
+
     def _validate_config(self) -> None:
         """
         验证配置完整性
-        
+
         Raises:
             ConfigValidationError: 当配置不完整时抛出异常
         """
         missing_config = []
-        
+
         if not self.WECOM_TOKEN:
             missing_config.append("WECOM_TOKEN")
         if not self.WECOM_ENCODING_AES_KEY:
             missing_config.append("WECOM_ENCODING_AES_KEY")
-        
+
         if missing_config:
             error_msg = f"missing env: {', '.join(missing_config)}"
             raise ConfigValidationError(error_msg)
 
 
 settings = Settings()
-
-
