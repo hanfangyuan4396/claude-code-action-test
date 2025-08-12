@@ -42,6 +42,5 @@ jobs:
 
       - name: Lint hints
         if: failure()
-        run: echo "请运行: ruff check --fix ./api && ruff format ./api 来自动修复可修复的问题。"
-
-
+        run: |
+          echo '请运行: ruff check --fix ./api && ruff format ./api 来自动修复可修复的问题。'
