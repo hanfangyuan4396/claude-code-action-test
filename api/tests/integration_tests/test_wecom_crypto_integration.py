@@ -1,6 +1,6 @@
-from core.wecom.crypto import WeComMessageCrypto
 import json
 
+from core.wecom.crypto import WeComMessageCrypto
 
 # 使用用户提供的配置（与 verify 集成测试保持一致）
 TOKEN = "eGsTQSJBs44yLCSq"

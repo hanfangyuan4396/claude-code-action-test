@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Request
-from typing import Dict, Any
-from service.echo_service import EchoService
+from typing import Any
 
+from fastapi import APIRouter, Request
+
+from service.echo_service import EchoService
 
 router = APIRouter()
 
 
 @router.get("/echo")
-async def echo_get(request: Request) -> Dict[str, Any]:
+async def echo_get(request: Request) -> dict[str, Any]:
     headers = dict(request.headers)
     query_params = dict(request.query_params)
     echo_service = EchoService()
@@ -20,7 +21,7 @@ async def echo_get(request: Request) -> Dict[str, Any]:
 
 
 @router.post("/echo")
-async def echo_post(request: Request) -> Dict[str, Any]:
+async def echo_post(request: Request) -> dict[str, Any]:
     headers = dict(request.headers)
     query_params = dict(request.query_params)
     try:

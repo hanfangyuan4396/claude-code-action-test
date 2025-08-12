@@ -8,13 +8,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import logging
 import xml.etree.ElementTree as ET
+from typing import Any
 
 from wechatpy.enterprise.crypto import WeChatCrypto
 from wechatpy.exceptions import InvalidSignatureException
-
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +31,8 @@ class WeComMessageCrypto:
         self.corp_id = corp_id or ""
         try:
             self.crypto = WeChatCrypto(self.token, encoding_aes_key, self.corp_id)
-        except Exception as exc:  # pragma: no cover - 初始化失败直接抛出
-            logger.error("Failed to init WeChatCrypto: %s", exc)
+        except Exception:  # pragma: no cover - 初始化失败直接抛出
+            logger.exception("Failed to init WeChatCrypto")
             raise
 
     def decrypt_from_json(self, msg_signature: str, timestamp: str, nonce: str, encrypt: str) -> str:
@@ -72,7 +71,7 @@ class WeComMessageCrypto:
             # 透传给上层以便返回 400
             raise
 
-    def encrypt_to_json(self, plain_text: str, nonce: str) -> Dict[str, Any]:
+    def encrypt_to_json(self, plain_text: str, nonce: str) -> dict[str, Any]:
         """将明文字符串加密并按新回调 JSON 协议返回。
 
         注意：本方法仅接受字符串。调用方需在调用前自行将 JSON/dict/bytes 等格式转换为字符串。
@@ -96,14 +95,14 @@ class WeComMessageCrypto:
         try:
             # timestamp 留空，由 wechatpy 内部生成
             encrypted_xml: str = self.crypto.encrypt_message(plain_text, nonce)
-        except Exception as exc:
-            logger.error("Encrypt message failed: %s", exc)
+        except Exception:
+            logger.exception("Encrypt message failed")
             raise
 
         try:
             root = ET.fromstring(encrypted_xml)
-        except Exception as exc:
-            logger.error("Parse encrypted xml failed: %s", exc)
+        except Exception:
+            logger.exception("Parse encrypted xml failed")
             raise
 
         encrypt_text = root.findtext("Encrypt")
