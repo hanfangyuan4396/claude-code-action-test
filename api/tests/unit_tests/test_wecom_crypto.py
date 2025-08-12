@@ -1,5 +1,5 @@
 import pytest
-from wecom import WeComMessageCrypto
+from core.wecom.crypto import WeComMessageCrypto
 from wechatpy.exceptions import InvalidSignatureException
 
 
@@ -10,7 +10,7 @@ def create_crypto() -> WeComMessageCrypto:
 
 
 def test_decrypt_from_json_success(mocker):
-    mock_crypto_cls = mocker.patch("wecom.crypto.WeChatCrypto")
+    mock_crypto_cls = mocker.patch("core.wecom.crypto.WeChatCrypto")
     mock_crypto_cls.return_value.decrypt_message.return_value = "<xml>plain</xml>"
 
     crypto = create_crypto()
@@ -31,7 +31,7 @@ def test_decrypt_from_json_success(mocker):
 
 
 def test_decrypt_from_json_invalid_signature(mocker):
-    mock_crypto_cls = mocker.patch("wecom.crypto.WeChatCrypto")
+    mock_crypto_cls = mocker.patch("core.wecom.crypto.WeChatCrypto")
     mock_crypto_cls.return_value.decrypt_message.side_effect = InvalidSignatureException("bad sig")
 
     crypto = create_crypto()
@@ -56,7 +56,7 @@ def test_decrypt_from_json_missing_encrypt():
 
 
 def test_encrypt_to_json_success(mocker):
-    mock_crypto_cls = mocker.patch("wecom.crypto.WeChatCrypto")
+    mock_crypto_cls = mocker.patch("core.wecom.crypto.WeChatCrypto")
     # wechatpy.encrypt_message 返回的 XML，包含四个关键字段
     mock_crypto_cls.return_value.encrypt_message.return_value = (
         "<xml>"

@@ -1,4 +1,4 @@
-from wecom import WeComMessageCrypto
+from core.wecom.crypto import WeComMessageCrypto
 import json
 
 

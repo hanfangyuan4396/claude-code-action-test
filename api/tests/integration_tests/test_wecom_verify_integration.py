@@ -1,4 +1,4 @@
-from wecom.verify import WeComURLVerifier
+from core.wecom.verify import WeComURLVerifier
 from wechatpy.enterprise.crypto import WeChatCrypto
 import xml.etree.ElementTree as ET
 

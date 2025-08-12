@@ -1,4 +1,4 @@
-from wecom.verify import WeComURLVerifier
+from core.wecom.verify import WeComURLVerifier
 from wechatpy.exceptions import InvalidSignatureException
 
 
@@ -9,7 +9,7 @@ def create_verifier() -> WeComURLVerifier:
 
 
 def test_verify_url_success(mocker):
-    mock_crypto = mocker.patch("wecom.verify.WeChatCrypto")
+    mock_crypto = mocker.patch("core.wecom.verify.WeChatCrypto")
     mock_crypto.return_value.check_signature.return_value = "plain_echostr"
 
     verifier = create_verifier()
@@ -25,7 +25,7 @@ def test_verify_url_success(mocker):
 
 
 def test_verify_url_invalid_signature(mocker):
-    mock_crypto = mocker.patch("wecom.verify.WeChatCrypto")
+    mock_crypto = mocker.patch("core.wecom.verify.WeChatCrypto")
     mock_crypto.return_value.check_signature.side_effect = InvalidSignatureException("bad sig")
 
     verifier = create_verifier()
@@ -41,7 +41,7 @@ def test_verify_url_invalid_signature(mocker):
 
 
 def test_verify_url_unexpected_error(mocker):
-    mock_crypto = mocker.patch("wecom.verify.WeChatCrypto")
+    mock_crypto = mocker.patch("core.wecom.verify.WeChatCrypto")
     mock_crypto.return_value.check_signature.side_effect = RuntimeError("boom")
 
     verifier = create_verifier()

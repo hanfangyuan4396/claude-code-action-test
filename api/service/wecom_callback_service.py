@@ -30,31 +30,17 @@ class WeComService:
         self.encoding_aes_key = encoding_aes_key
         self.corp_id = corp_id
         
-        # 初始化核心组件
-        self._url_verifier = None
-        self._message_crypto = None
-    
-    @property
-    def url_verifier(self) -> WeComURLVerifier:
-        """获取URL验证器（懒加载）"""
-        if self._url_verifier is None:
-            self._url_verifier = WeComURLVerifier(
-                token=self.token,
-                encoding_aes_key=self.encoding_aes_key,
-                corp_id=self.corp_id
-            )
-        return self._url_verifier
-    
-    @property
-    def message_crypto(self) -> WeComMessageCrypto:
-        """获取消息加解密器（懒加载）"""
-        if self._message_crypto is None:
-            self._message_crypto = WeComMessageCrypto(
-                token=self.token,
-                encoding_aes_key=self.encoding_aes_key,
-                corp_id=self.corp_id
-            )
-        return self._message_crypto
+        # 初始化核心组件（直接初始化，保持简单）
+        self.url_verifier = WeComURLVerifier(
+            token=self.token,
+            encoding_aes_key=self.encoding_aes_key,
+            corp_id=self.corp_id,
+        )
+        self.message_crypto = WeComMessageCrypto(
+            token=self.token,
+            encoding_aes_key=self.encoding_aes_key,
+            corp_id=self.corp_id,
+        )
     
     def verify_callback_url(
         self,
