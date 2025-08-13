@@ -9,6 +9,7 @@ from typing import Any
 
 from wechatpy.exceptions import InvalidSignatureException
 
+from core.stream_manager import StreamStatus, get_stream_state, start_stream
 from core.wecom.crypto import WeComMessageCrypto
 from core.wecom.verify import WeComURLVerifier
 from utils.logging import get_logger
@@ -139,21 +140,51 @@ class WeComService:
                 encrypt=encrypt,
             )
 
-            # 解密出来的消息，实际是 JSON 格式
+            # 解密出来的消息为明文 XML 字符串，业务上按 JSON 解析（企业微信新回调在明文中放 JSON）
             logger.info("wecom_callback_post decrypted plain text: %s", plain_text)
 
-            # 直接使用随机 UUID 作为流式消息 id
-            stream_id = uuid.uuid4().hex
+            try:
+                msg_obj = json.loads(plain_text)
+            except Exception:
+                # 若不是 JSON，回落到一次性结束的简单回包
+                stream_id = uuid.uuid4().hex
+                reply_plain_json = {
+                    "msgtype": "stream",
+                    "stream": {"id": stream_id, "finish": True, "content": "收到"},
+                }
+            else:
+                msgtype = msg_obj.get("msgtype")
+                # 处理拉取式刷新：WeCom 会携带 msgtype=stream 且附 stream.id
+                if msgtype == "stream" and isinstance(msg_obj.get("stream"), dict):
+                    sid = msg_obj["stream"].get("id")
+                    state = get_stream_state(sid)
+                    reply_plain_json = {
+                        "msgtype": "stream",
+                        "stream": {
+                            "id": sid,
+                            "finish": state["status"] in (StreamStatus.DONE, StreamStatus.ERROR),
+                            "content": state["content"],
+                        },
+                    }
+                else:
+                    # 首次收到用户消息：创建新的流会话，立即返回首包（finish=false）
+                    # 这里以不同消息体类型统一提取一个 prompt（简单起见）
+                    prompt = None
+                    if msgtype == "text" and isinstance(msg_obj.get("text"), dict):
+                        prompt = msg_obj["text"].get("content")
+                    elif msgtype == "mixed" and isinstance(msg_obj.get("mixed"), dict):
+                        prompt = json.dumps(msg_obj.get("mixed"))
+                    elif msgtype == "image" and isinstance(msg_obj.get("image"), dict):
+                        prompt = json.dumps(msg_obj.get("image"))
+                    if not prompt:
+                        prompt = ""
 
-            # 构造"回复用户消息"的流式消息（明文需为字符串）
-            reply_plain_json = {
-                "msgtype": "stream",
-                "stream": {
-                    "id": stream_id,
-                    "finish": True,
-                    "content": "收到",
-                },
-            }
+                    stream_id = start_stream(prompt)
+                    # 首次响应返回空内容，finish=false，由后续轮询逐步取增量
+                    reply_plain_json = {
+                        "msgtype": "stream",
+                        "stream": {"id": stream_id, "finish": False, "content": ""},
+                    }
             reply_plain_text = json.dumps(reply_plain_json, ensure_ascii=False)
 
             # 加密回复

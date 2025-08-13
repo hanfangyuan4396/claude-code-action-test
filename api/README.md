@@ -42,14 +42,17 @@ uvicorn app:app --reload
 
 ### 运行测试（简要）
 
-本项目使用 `pytest` 进行测试，测试代码位于 `api/tests/`。本地快速运行：
+本项目使用 `pytest` 进行测试，测试代码位于 `api/tests/`。
+
+状态管理已迁移至 `core/stream_manager.py`，并且对内对外统一使用枚举 `StreamStatus`。
+
+本地快速运行示例（请按你的环境选择 Python 解释器）：
 
 ```bash
-pip install -r requirements.txt
-pytest -q --cov=core --cov-report=term-missing
+python -m pytest -q --cov=core --cov-report=term-missing
 ```
 
-CI 将在 Pull Request 上使用 Python 3.12 运行上述测试并输出覆盖率摘要（无外部依赖，如 Redis/MySQL）。
+CI 将在 Pull Request 上运行上述测试并输出覆盖率摘要（无外部依赖，如 Redis/MySQL）。
 
 ### Ruff 使用（代码规范与格式化）
 
