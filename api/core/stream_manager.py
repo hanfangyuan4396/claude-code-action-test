@@ -17,6 +17,10 @@ from collections.abc import AsyncIterator
 from enum import Enum
 from typing import Any
 
+from utils.logging import get_logger
+
+logger = get_logger()
+
 
 class StreamStatus(Enum):
     RUNNING = "running"
@@ -48,6 +52,7 @@ def start_stream(prompt: str) -> str:
         loop = asyncio.get_running_loop()
     except RuntimeError:
         # 当前上下文没有运行中的事件循环：回退到线程 + asyncio.run
+        logger.warning("没有检测到运行中的事件循环，回退到后台线程执行流式任务 (stream_id: %s)", stream_id)
         thread = threading.Thread(
             target=lambda: asyncio.run(_worker(stream_id=stream_id, prompt=prompt)),
             daemon=True,
