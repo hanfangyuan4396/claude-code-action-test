@@ -43,10 +43,9 @@
 6. pre-commit hook会自动调整代码格式，如果修改文件后，需要重新执行`git add .`和`git commit -m "[提交信息]"`，不应添加`--amend`参数，因为之前的commit并未成功执行
 7. 无法自动调整的代码格式，需要你手动调整
 8. 推送分支到远程：`git push -u origin [新分支名]`
-9. 输出创建PR的URL格式（基于远程仓库信息）
+9. 使用gh命令检查PR是否存在，如果不存在则创建PR
 
 # Notes
 - 分支名应该反映变更的内容和目的
 - 提交信息应该简洁明了地描述变更
-- PR URL格式示例：`https://github.com/hanfangyuan4396/claude-code-action-test/pull/new/branch-name`
 - 当pre-commit hook修改文件后，需要重新执行`git add .`和`git commit -m "[提交信息]"`，不应使用`--amend`参数，因为之前的commit并未成功执行
