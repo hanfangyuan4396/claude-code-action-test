@@ -32,6 +32,26 @@ class StreamStatus(Enum):
 
 # 共享状态：{ stream_id: {"status": StreamStatus, "content": str, "error"?: str} }
 _streams_state: dict[str, dict[str, Any]] = {}
+_streams_state_lock = threading.RLock()
+_RETENTION_SECONDS: float = 30.0  # 完成后在内存中保留的时间，便于最后一次拉取
+
+
+def _schedule_cleanup(stream_id: str, delay_seconds: float = _RETENTION_SECONDS) -> None:
+    """在指定延迟后清理内存中的流状态。
+
+    由于 worker 可能运行在独立线程的事件循环中，退出后无法再安全地调度 asyncio 任务，
+    这里统一用 threading.Timer 做延迟删除，确保各场景下都能清理。
+    """
+
+    def _delete() -> None:
+        with _streams_state_lock:
+            if stream_id in _streams_state:
+                _streams_state.pop(stream_id, None)
+                logger.info("stream 状态已清理 (stream_id=%s)", stream_id)
+
+    timer = threading.Timer(delay_seconds, _delete)
+    timer.daemon = True
+    timer.start()
 
 
 def start_stream(prompt: str) -> str:
@@ -46,7 +66,8 @@ def start_stream(prompt: str) -> str:
         生成的 stream_id
     """
     stream_id = uuid.uuid4().hex
-    _streams_state[stream_id] = {"status": StreamStatus.RUNNING, "content": ""}
+    with _streams_state_lock:
+        _streams_state[stream_id] = {"status": StreamStatus.RUNNING, "content": ""}
 
     try:
         loop = asyncio.get_running_loop()
@@ -67,20 +88,22 @@ def start_stream(prompt: str) -> str:
 
 def get_stream_state(stream_id: str) -> dict:
     """查询指定流的当前状态（对外直接返回枚举）。"""
-    state = _streams_state.get(stream_id)
-    if state is None:
-        return {"status": StreamStatus.MISSING, "content": ""}
+    with _streams_state_lock:
+        state = _streams_state.get(stream_id)
+        if state is None:
+            return {"status": StreamStatus.MISSING, "content": ""}
 
-    result = {"status": state.get("status", StreamStatus.MISSING), "content": state.get("content", "")}
-    if result["status"] == StreamStatus.ERROR and "error" in state:
-        result["error"] = state["error"]
-    return result
+        result = {"status": state.get("status", StreamStatus.MISSING), "content": state.get("content", "")}
+        if result["status"] == StreamStatus.ERROR and "error" in state:
+            result["error"] = state["error"]
+        return result
 
 
 def stop_stream(stream_id: str) -> None:
     """请求停止指定流的产出。"""
-    if stream_id in _streams_state:
-        _streams_state[stream_id]["status"] = StreamStatus.STOPPING
+    with _streams_state_lock:
+        if stream_id in _streams_state:
+            _streams_state[stream_id]["status"] = StreamStatus.STOPPING
 
 
 async def _mock_stream_iter(prompt: str) -> AsyncIterator[str]:
@@ -97,19 +120,29 @@ async def _worker(stream_id: str, prompt: str) -> None:
     try:
         async for chunk in _mock_stream_iter(prompt):
             # 若被请求停止，则提前退出
-            if _streams_state.get(stream_id, {}).get("status") == StreamStatus.STOPPING:
+            with _streams_state_lock:
+                status = _streams_state.get(stream_id, {}).get("status")
+            if status == StreamStatus.STOPPING:
+                # 标记为停止后安排清理
+                _schedule_cleanup(stream_id)
                 break
             # 累加分片
-            if stream_id in _streams_state:
-                _streams_state[stream_id]["content"] += chunk
+            with _streams_state_lock:
+                if stream_id in _streams_state:
+                    _streams_state[stream_id]["content"] += chunk
         # 正常结束（未被删除）
-        if stream_id in _streams_state and _streams_state[stream_id]["status"] == StreamStatus.RUNNING:
-            # 若先前被标记为 stopping，这里不覆盖为 done，保持 stopping 以便上层识别
-            _streams_state[stream_id]["status"] = StreamStatus.DONE
+        with _streams_state_lock:
+            if stream_id in _streams_state and _streams_state[stream_id]["status"] == StreamStatus.RUNNING:
+                # 若先前被标记为 stopping，这里不覆盖为 done，保持 stopping 以便上层识别
+                _streams_state[stream_id]["status"] = StreamStatus.DONE
+        # 安排延迟清理，给予外层一段时间做最后一次拉取
+        _schedule_cleanup(stream_id)
     except Exception as exc:  # pragma: no cover - 异常路径难以稳定复现
-        if stream_id in _streams_state:
-            _streams_state[stream_id]["status"] = StreamStatus.ERROR
-            _streams_state[stream_id]["error"] = repr(exc)
+        with _streams_state_lock:
+            if stream_id in _streams_state:
+                _streams_state[stream_id]["status"] = StreamStatus.ERROR
+                _streams_state[stream_id]["error"] = repr(exc)
+        _schedule_cleanup(stream_id)
 
 
 # 简单轮询示例（便于本地临时验证）

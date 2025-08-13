@@ -162,7 +162,8 @@ class WeComService:
                         "msgtype": "stream",
                         "stream": {
                             "id": sid,
-                            "finish": state["status"] in (StreamStatus.DONE, StreamStatus.ERROR),
+                            # 当状态为 DONE/ERROR/MISSING 时，认为轮询可以结束
+                            "finish": state["status"] in (StreamStatus.DONE, StreamStatus.ERROR, StreamStatus.MISSING),
                             "content": state["content"],
                         },
                     }
