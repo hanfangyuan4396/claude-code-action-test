@@ -31,7 +31,7 @@ async def wecom_callback_get(
     - 保持原有的请求/响应格式和状态码
     """
 
-    logger.info(
+    logger.debug(
         "wecom_callback params: msg_signature=%s timestamp=%s nonce=%s echostr=%s",
         msg_signature,
         timestamp,

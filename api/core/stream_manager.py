@@ -49,7 +49,7 @@ def _schedule_cleanup(stream_id: str, delay_seconds: float = _RETENTION_SECONDS)
         with _streams_state_lock:
             if stream_id in _streams_state:
                 _streams_state.pop(stream_id, None)
-                logger.info("stream 状态已清理 (stream_id=%s)", stream_id)
+                logger.debug("stream 状态已清理 (stream_id=%s)", stream_id)
 
     timer = threading.Timer(delay_seconds, _delete)
     timer.daemon = True
