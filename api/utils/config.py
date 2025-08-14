@@ -24,6 +24,14 @@ class Settings:
         self.WECOM_CORP_ID: str = os.getenv("WECOM_CORP_ID", "")
         self.LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
 
+        # OpenAI（可选）
+        self.OPENAI_API_KEY: str | None = os.getenv("OPENAI_API_KEY")
+        self.OPENAI_BASE_URL: str | None = os.getenv("OPENAI_BASE_URL")
+        self.OPENAI_MODEL: str | None = os.getenv("OPENAI_MODEL")
+
+        # LLM provider 开关：mock | openai（默认 mock，便于单元测试稳定）
+        self.LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "mock").lower()
+
         # 配置完整性校验
         self._validate_config()
 

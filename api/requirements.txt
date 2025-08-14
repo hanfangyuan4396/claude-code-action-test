@@ -7,3 +7,4 @@ pytest-cov==6.2.1
 cryptography==45.0.6
 ruff==0.12.8
 pre-commit==4.3.0
+openai==1.99.9
