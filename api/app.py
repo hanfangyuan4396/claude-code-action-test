@@ -24,7 +24,7 @@ app.include_router(echo_router)
 app.include_router(wecom_router)
 
 # 记录配置信息用于调试
-logger.info(
+logger.debug(
     "token: %s encoding_aes_key: %s corp_id: %s",
     settings.WECOM_TOKEN,
     settings.WECOM_ENCODING_AES_KEY,
