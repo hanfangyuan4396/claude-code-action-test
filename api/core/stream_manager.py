@@ -49,7 +49,7 @@ def _schedule_cleanup(stream_id: str, delay_seconds: float = _RETENTION_SECONDS)
         with _streams_state_lock:
             if stream_id in _streams_state:
                 _streams_state.pop(stream_id, None)
-                logger.info("stream 状态已清理 (stream_id=%s)", stream_id)
+                logger.debug("stream 状态已清理 (stream_id=%s)", stream_id)
 
     timer = threading.Timer(delay_seconds, _delete)
     timer.daemon = True
@@ -124,7 +124,7 @@ async def _worker(stream_id: str, prompt: str) -> None:
         iter_fn = _mock_stream_iter
         if settings.LLM_PROVIDER == "openai" and getattr(settings, "OPENAI_API_KEY", None):
             iter_fn = openai_stream_iter
-            logger.info("stream worker: using OpenAI streaming")
+            logger.debug("stream worker: using OpenAI streaming")
 
         async for chunk in iter_fn(prompt):
             # 若被请求停止，则提前退出

@@ -39,7 +39,7 @@ def _iter_openai_tokens(prompt: str) -> Iterator[str]:
     client = _create_openai_client()
     model_name = settings.OPENAI_MODEL or "gpt-5-mini"
 
-    logger.info("starting OpenAI streaming (model=%s)", model_name)
+    logger.debug("starting OpenAI streaming (model=%s)", model_name)
 
     stream = client.chat.completions.create(
         model=model_name,

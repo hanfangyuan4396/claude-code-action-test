@@ -13,7 +13,7 @@ class EchoService:
         headers: dict[str, Any],
         query_params: dict[str, Any],
     ) -> dict[str, Any]:
-        logger.info(
+        logger.debug(
             "method=%s url=%s headers=%s query=%s",
             method,
             url,
@@ -34,7 +34,7 @@ class EchoService:
         query_params: dict[str, Any],
         body_text: str,
     ) -> dict[str, Any]:
-        logger.info(
+        logger.debug(
             "method=%s url=%s headers=%s query=%s body=%s",
             method,
             url,

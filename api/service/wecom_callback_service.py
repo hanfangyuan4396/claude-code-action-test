@@ -58,7 +58,7 @@ class WeComService:
         Returns:
             (验证是否成功, 解密后的echostr或错误信息)
         """
-        logger.info(
+        logger.debug(
             "处理企业微信URL验证: msg_signature=%s, timestamp=%s, nonce=%s, echostr=%s",
             msg_signature,
             timestamp,
@@ -72,7 +72,7 @@ class WeComService:
             )
 
             if success:
-                logger.info("企业微信URL验证成功")
+                logger.debug("企业微信URL验证成功")
                 return True, plain_text
             else:
                 logger.warning("企业微信URL验证失败：签名无效")
@@ -129,7 +129,7 @@ class WeComService:
         Returns:
             (处理是否成功, 错误信息或成功标识, 加密的回复消息字典)
         """
-        logger.info("处理企业微信回调消息: msg_signature=%s, timestamp=%s, nonce=%s", msg_signature, timestamp, nonce)
+        logger.debug("处理企业微信回调消息: msg_signature=%s, timestamp=%s, nonce=%s", msg_signature, timestamp, nonce)
 
         try:
             # 解密消息
@@ -141,7 +141,7 @@ class WeComService:
             )
 
             # 解密出来的消息为明文 XML 字符串，业务上按 JSON 解析（企业微信新回调在明文中放 JSON）
-            logger.info("wecom_callback_post decrypted plain text: %s", plain_text)
+            logger.debug("wecom_callback_post decrypted plain text: %s", plain_text)
 
             try:
                 msg_obj = json.loads(plain_text)
