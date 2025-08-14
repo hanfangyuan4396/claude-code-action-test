@@ -3,12 +3,13 @@ import xml.etree.ElementTree as ET
 from wechatpy.enterprise.crypto import WeChatCrypto
 
 from core.wecom.verify import WeComURLVerifier
+from utils.config import settings
 
 # 使用用户提供的配置
-TOKEN = "eGsTQSJBs44yLCSq"
-AES_KEY = "ENQ2J83KxaHtBMDswNRnBAza6O82y0u9e0wPfBMZIyu"
+TOKEN = settings.WECOM_TOKEN
+AES_KEY = settings.WECOM_ENCODING_AES_KEY
 # 企业内部智能机器人场景，ReceiveId 为空字符串
-CORP_ID = ""
+CORP_ID = settings.WECOM_CORP_ID
 
 
 def test_verify_url_success_integration():
