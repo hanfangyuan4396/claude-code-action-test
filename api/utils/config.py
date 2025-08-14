@@ -14,9 +14,9 @@ class Settings:
     def __init__(self) -> None:
         # 加载 .env（位于与 app.py 同目录的 .env）
         env_path = Path(__file__).with_name("..").resolve().joinpath(".env")
-        # 兜底：如果上面路径不对，尝试 api 根目录
+        # 兜底：如果上面路径不对，尝试使用 api 根目录的 .env.example
         if not env_path.exists():
-            env_path = Path(__file__).resolve().parents[1].joinpath(".env")
+            env_path = Path(__file__).with_name("..").resolve().joinpath(".env.example")
         load_dotenv(dotenv_path=env_path)
 
         self.WECOM_TOKEN: str | None = os.getenv("WECOM_TOKEN")

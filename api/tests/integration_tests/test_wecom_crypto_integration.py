@@ -1,12 +1,13 @@
 import json
 
 from core.wecom.crypto import WeComMessageCrypto
+from utils.config import settings
 
 # 使用用户提供的配置（与 verify 集成测试保持一致）
-TOKEN = "eGsTQSJBs44yLCSq"
-AES_KEY = "ENQ2J83KxaHtBMDswNRnBAza6O82y0u9e0wPfBMZIyu"
+TOKEN = settings.WECOM_TOKEN
+AES_KEY = settings.WECOM_ENCODING_AES_KEY
 # 企业内部智能机器人场景，ReceiveId 为空字符串
-CORP_ID = ""
+CORP_ID = settings.WECOM_CORP_ID
 
 
 def test_decrypt_from_json_success_integration():
