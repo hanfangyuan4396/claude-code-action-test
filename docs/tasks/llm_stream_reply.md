@@ -125,7 +125,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 async def _openai_stream_iter(prompt: str):
     # 使用 Chat Completions 流式接口
     stream = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-5-mini",
         messages=[{"role": "user", "content": prompt}],
         stream=True,
     )
@@ -193,3 +193,12 @@ async def _openai_stream_iter(prompt: str):
   - 接入真实 LLM Provider（OpenAI 优先），完善超时/重试/限流
   - 增补集成测试与 README 操作指引（端到端）
   - 如需支持多进程/多副本，迁移共享状态至 Redis
+
+### 使用说明（OpenAI 流式开关）
+- 在 `api/.env.example` 中复制为 `api/.env` 并填写：
+  - `OPENAI_API_KEY`
+  - 可选：`OPENAI_BASE_URL`（代理或自建网关时）
+  - 可选：`OPENAI_MODEL`（默认 `gpt-5-mini`）
+- 安装依赖：
+  - `/home/hfy/miniconda3/envs/claude-test/bin/python -m pip install -r api/requirements.txt`
+- 运行服务或本地验证脚本时，若检测到 `OPENAI_API_KEY`，`stream_manager` 将自动切换为真实 LLM 流式；否则使用模拟流。

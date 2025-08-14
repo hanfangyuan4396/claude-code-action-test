@@ -17,6 +17,8 @@ from collections.abc import AsyncIterator
 from enum import Enum
 from typing import Any
 
+from core.llm.openai_client import openai_stream_iter
+from utils.config import settings
 from utils.logging import get_logger
 
 logger = get_logger()
@@ -118,7 +120,13 @@ async def _mock_stream_iter(prompt: str) -> AsyncIterator[str]:
 async def _worker(stream_id: str, prompt: str) -> None:
     """后台 worker：消费分片并累加到共享状态。"""
     try:
-        async for chunk in _mock_stream_iter(prompt):
+        # 选择分片来源：若配置了 OPENAI_API_KEY，则优先使用真实 LLM 流；否则退回模拟流
+        iter_fn = _mock_stream_iter
+        if settings.LLM_PROVIDER == "openai" and getattr(settings, "OPENAI_API_KEY", None):
+            iter_fn = openai_stream_iter
+            logger.info("stream worker: using OpenAI streaming")
+
+        async for chunk in iter_fn(prompt):
             # 若被请求停止，则提前退出
             with _streams_state_lock:
                 status = _streams_state.get(stream_id, {}).get("status")
