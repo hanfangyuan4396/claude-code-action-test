@@ -50,14 +50,18 @@ def _iter_openai_tokens(prompt: str) -> Iterator[str]:
     for chunk in stream:
         # 兼容 OpenAI 以及同构兼容实现：从 delta.content 中取文本
         try:
-            delta = getattr(chunk.choices[0], "delta", None)
-            if delta is None:
+            choices = getattr(chunk, "choices", None)
+            if not choices:
+                continue
+            first_choice = choices[0]
+            delta = getattr(first_choice, "delta", None)
+            if not delta:
                 continue
             content = getattr(delta, "content", None)
             if content:
                 yield content
         except Exception as exc:  # 容错：单个分片解析失败时尽量不中断
-            logger.warning("failed to parse streaming chunk: %r", exc)
+            logger.warning("failed to parse streaming chunk: %r; raw=%r", exc, chunk)
             continue
 
 
