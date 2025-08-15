@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from controller.echo_controller import router as echo_router
 from controller.wecom_callback_controller import router as wecom_router
+from controller.health_controller import router as health_router
 from utils import register_exception_handlers
 from utils.config import settings
 from utils.logging import get_logger, init_logging
@@ -22,6 +23,7 @@ register_exception_handlers(app)
 
 app.include_router(echo_router)
 app.include_router(wecom_router)
+app.include_router(health_router)
 
 # 记录配置信息用于调试
 logger.info(
