@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from controller.echo_controller import router as echo_router
+from controller.health_controller import router as health_router
 from controller.wecom_callback_controller import router as wecom_router
 from utils import register_exception_handlers
 from utils.config import settings
@@ -30,6 +31,7 @@ register_exception_handlers(app)
 
 # 挂载路由（echo、wecom callback 等）
 
+app.include_router(health_router, prefix=API_PREFIX)
 app.include_router(echo_router, prefix=API_PREFIX)
 app.include_router(wecom_router, prefix=API_PREFIX)
 
