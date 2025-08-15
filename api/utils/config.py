@@ -19,6 +19,9 @@ class Settings:
             env_path = Path(__file__).with_name("..").resolve().joinpath(".env.example")
         load_dotenv(dotenv_path=env_path)
 
+        # 基础运行环境
+        self.APP_ENV: str = os.getenv("APP_ENV", "dev").lower()
+
         self.WECOM_TOKEN: str | None = os.getenv("WECOM_TOKEN")
         self.WECOM_ENCODING_AES_KEY: str | None = os.getenv("WECOM_ENCODING_AES_KEY")
         self.WECOM_CORP_ID: str = os.getenv("WECOM_CORP_ID", "")

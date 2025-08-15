@@ -7,7 +7,17 @@ from utils import register_exception_handlers
 from utils.config import settings
 from utils.logging import get_logger, init_logging
 
-app = FastAPI(title="FastAPI Demo", description="A simple FastAPI application", version="1.0.0")
+API_PREFIX = "/api"
+ENABLE_DOCS = settings.APP_ENV != "prod"
+
+app = FastAPI(
+    title="FastAPI Demo",
+    description="A simple FastAPI application",
+    version="1.0.0",
+    docs_url=f"{API_PREFIX}/docs" if ENABLE_DOCS else None,
+    redoc_url=f"{API_PREFIX}/redoc" if ENABLE_DOCS else None,
+    openapi_url=f"{API_PREFIX}/openapi.json" if ENABLE_DOCS else None,
+)
 
 init_logging(settings.LOG_LEVEL)
 logger = get_logger()
@@ -20,8 +30,8 @@ register_exception_handlers(app)
 
 # 挂载路由（echo、wecom callback 等）
 
-app.include_router(echo_router)
-app.include_router(wecom_router)
+app.include_router(echo_router, prefix=API_PREFIX)
+app.include_router(wecom_router, prefix=API_PREFIX)
 
 # 记录配置信息用于调试
 logger.info(
