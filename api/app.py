@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from controller.echo_controller import router as echo_router
 from controller.wecom_callback_controller import router as wecom_router
@@ -32,6 +33,19 @@ register_exception_handlers(app)
 
 app.include_router(echo_router, prefix=API_PREFIX)
 app.include_router(wecom_router, prefix=API_PREFIX)
+
+
+@app.get(f"{API_PREFIX}/health")
+async def health_check():
+    """健康检查接口"""
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "service": "fastapi-demo",
+            "version": "1.0.0"
+        },
+        status_code=200
+    )
 
 # 记录配置信息用于调试
 logger.info(
