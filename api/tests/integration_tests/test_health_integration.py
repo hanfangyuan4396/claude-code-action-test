@@ -17,13 +17,10 @@ def test_health_endpoint_integration():
     assert "service" in data
     assert "version" in data
     assert data["status"] == "healthy"
+    assert data["service"] == "FastAPI Demo API"
+    assert data["version"] == "1.0.0"
+    assert response.headers["content-type"] == "application/json"
 
-
-def test_health_endpoint_accessible_with_app_prefix():
-    """Test that health endpoint is accessible under /api prefix as configured."""
-    response = client.get("/api/health")
-    assert response.status_code == 200
-
-    # Verify direct access without prefix fails
+    # Verify direct access without prefix fails (confirms proper API prefix routing)
     response_direct = client.get("/health")
     assert response_direct.status_code == 404
