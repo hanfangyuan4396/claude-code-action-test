@@ -11,6 +11,6 @@ async def health_check() -> dict[str, Any]:
     Health check endpoint for monitoring and load balancer health checks.
 
     Returns:
-        dict: Health status information including status and timestamp
+        dict: Health status information including status, service, and version.
     """
     return {"status": "healthy", "service": "FastAPI Demo API", "version": "1.0.0"}
