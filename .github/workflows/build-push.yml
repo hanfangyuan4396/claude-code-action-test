@@ -31,7 +31,6 @@ jobs:
           filters: |
             api:
               - 'api/**'
-            web:
             workflow:
               - '.github/workflows/**'
 
