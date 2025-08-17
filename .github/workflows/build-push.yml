@@ -31,7 +31,6 @@ jobs:
             api:
               - 'api/**'
             web:
-              - 'web/**'
             workflow:
               - '.github/workflows/**'
 
