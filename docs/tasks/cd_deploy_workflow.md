@@ -47,11 +47,11 @@
 
 ## 任务步骤
 
-1. [ ] 分析现有build-push.yml工作流结构和命名
-2. [ ] 创建deploy.yml工作流文件
-3. [ ] 实现workflow_run触发机制
-4. [ ] 配置SSH部署动作
-5. [ ] 测试工作流配置语法
+1. [x] 分析现有build-push.yml工作流结构和命名
+2. [x] 创建deploy.yml工作流文件
+3. [x] 实现workflow_run触发机制
+4. [x] 配置SSH部署动作
+5. [x] 测试工作流配置语法
 6. [ ] 验证环境变量和密钥配置（需要在实际环境中测试）
 
 ## 验收标准
@@ -65,11 +65,26 @@
 
 ## 里程碑与产出
 
-- [ ] M1：创建基础工作流文件结构
-- [ ] M2：实现workflow_run触发和条件判断
-- [ ] M3：配置SSH部署动作
-- [ ] M4：工作流文件语法验证
+- [x] M1：创建基础工作流文件结构
+- [x] M2：实现workflow_run触发和条件判断
+- [x] M3：配置SSH部署动作
+- [x] M4：工作流文件语法验证
+
+## 实现细节
+
+### 创建的文件
+- `.github/workflows/deploy.yml` - CD部署工作流
+
+### 使用的GitHub Actions版本
+- `appleboy/ssh-action@v1.0.3` - SSH部署动作的稳定版本
+
+### 关键特性
+- 监听"Build and Push"工作流完成事件
+- 仅在构建成功时执行部署
+- 支持手动触发（workflow_dispatch）
+- 使用GitHub secrets和vars管理敏感信息
+- 符合GitHub Actions最佳实践
 
 ## 状态
 
-进行中
+已完成 - 2024年8月18日
