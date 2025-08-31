@@ -21,10 +21,11 @@ jobs:
       - name: Triage issue with Claude
         uses: anthropics/claude-code-action@v1
         env:
-          ANTHROPIC_BASE_URL: https://open.bigmodel.cn/api/anthropic
+          ANTHROPIC_BASE_URL: https://api.moonshot.cn/anthropic/
+          # ANTHROPIC_BASE_URL: https://open.bigmodel.cn/api/anthropic
         with:
-          # claude_code_oauth_token: ${{ secrets.GLM_API_KEY }}
-          anthropic_api_key: ${{ secrets.GLM_API_KEY }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # anthropic_api_key: ${{ secrets.GLM_API_KEY }
           prompt: |
             You're an issue triage assistant for GitHub issues. Your task is to analyze the issue and select appropriate labels from the provided list.
 
