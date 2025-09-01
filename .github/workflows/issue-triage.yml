@@ -1,7 +1,8 @@
 name: Issue Triage
 on:
-  issues:
-    types: [opened]
+  # issues:
+  #   types: [opened]
+  workflow_dispatch:
 
 jobs:
   triage-issue:
