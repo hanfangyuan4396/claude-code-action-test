@@ -25,7 +25,7 @@ jobs:
           ANTHROPIC_BASE_URL: https://open.bigmodel.cn/api/anthropic
         with:
           # anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          anthropic_api_key: ${{ secrets.GLM_API_KEY }
+          anthropic_api_key: ${{ secrets.GLM_API_KEY }}
           prompt: |
             REPO: ${{ github.repository }}
             ISSUE NUMBER: ${{ github.event.issue.number }}
